@@ -8,6 +8,9 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+//import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.NoOpPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 
 @Configuration
@@ -22,17 +25,19 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
-                .authorizeRequests()                            // Начало конфигурации правил авторизации в Spring Security
-                .antMatchers("/", "/index").permitAll()     // Позволяет всем заходить на / и /index без авторизации
-                .antMatchers("/admin/**").hasRole("ADMIN")    // Доступ для роли ADMIN к /admin/**
-                .antMatchers("/user").hasRole("USER")         // Доступ для роли USER к /user
-                .anyRequest().authenticated()                   // все остальные требуют входа в систему
-                .and()                                          // завершение текущего блока настроек и перехода к следующему разделу конфигурации
-                .formLogin().successHandler(successUserHandler) // Использует форму входа, при этом после успешной авторизации вызывается successUserHandler.
-                .permitAll()                                    // разрешить доступ к форме логина всем
+                .authorizeRequests()
+                // Требовать авторизацию для главной страницы
+                .antMatchers("{/}", "/index").authenticated()
+                // остальные правила
+                .antMatchers("/admin/**").hasRole("ADMIN")
+                .antMatchers("/user/**").hasAnyRole("USER","ADMIN")
+                .anyRequest().authenticated()
+                .and()
+                .formLogin().successHandler(successUserHandler)
+                .permitAll()
                 .and()
                 .logout().logoutSuccessUrl("/")
-                .permitAll();                                   // разрешить выход из системы всем
+                .permitAll();
     }
 
     // аутентификация inMemory
@@ -42,17 +47,24 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         UserDetails user = User.builder()// создание пользователя с логином/паролем/ролью user
                 //User.withDefaultPasswordEncoder()
                 .username("user")
-                .password("{bcrypt}$2a$12$rIxFRYcu1jlD2tpXv7oODO.5c9WwTetznHimgmQJTOg/5Af.8xlv6") //user
+                //.password("{bcrypt}$2a$12$rIxFRYcu1jlD2tpXv7oODO.5c9WwTetznHimgmQJTOg/5Af.8xlv6") //user
+                .password("{noop}user")
                 .roles("USER")
                 .build();   //создает финальный объект UserDetails, который затем передается в InMemoryUserDetailsManager.
 
         UserDetails admin = User.builder()// создание административного пользователя admin
                 //User.withDefaultPasswordEncoder()
                 .username("admin")
-                .password("{bcrypt}$2a$12$CE.5kDEza.xAwrlxJRtnReY4kwQK2BWRTuyADXqHqxQ3Oi9gMLvGm") //admin
+                //.password("{bcrypt}$2a$12$CE.5kDEza.xAwrlxJRtnReY4kwQK2BWRTuyADXqHqxQ3Oi9gMLvGm") //admin
+                .password("{noop}admin")
                 .roles("ADMIN", "USER")
                 .build();   //создает финальный объект UserDetails, который затем передается в InMemoryUserDetailsManager.
 
         return new InMemoryUserDetailsManager(user, admin);
     }
+
+//    @Bean
+//    public PasswordEncoder passwordEncoder() {
+//        return NoOpPasswordEncoder.getInstance();
+//    }
 }

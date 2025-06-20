@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <title>Регистрация</title>
+</head>
+<body>
+<div>
+    <h2>Регистрация</h2>
+    <form id="registrationForm">
+        <div>
+            <input type="text" id="username" name="username" placeholder="Username" autofocus required />
+            <div id="usernameError" style="color:red;"></div>
+        </div>
+        <div>
+            <input type="password" id="password" name="password" placeholder="Password" required />
+        </div>
+        <div>
+            <input type="password" id="passwordConfirm" name="passwordConfirm" placeholder="Confirm your password" required />
+            <div id="passwordError" style="color:red;"></div>
+        </div>
+        <button type="submit">Зарегистрироваться</button>
+    </form>
+    <a href="/">Главная</a>
+</div>
+
+<script>
+    // Обработка отправки формы
+    document.getElementById('registrationForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        // Очистка ошибок
+        document.getElementById('usernameError').innerText = '';
+        document.getElementById('passwordError').innerText = '';
+
+        const data = {
+            username: document.getElementById('username').value,
+            password: document.getElementById('password').value,
+            passwordConfirm: document.getElementById('passwordConfirm').value
+        };
+
+        try {
+            const response = await fetch('/api/register', { // предполагаемый API для регистрации
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data),
+                credentials: 'include' // если нужен обмен куки
+            });
+
+            if (response.ok) {
+                // Успешная регистрация, перенаправление или сообщение
+                alert('Регистрация прошла успешно!');
+                window.location.href = '/'; // или другая страница
+            } else {
+                const errorData = await response.json();
+
+                // Предположим, что сервер возвращает ошибки в виде:
+                // { "errors": { "username": "Ошибка", "password": "Ошибка" } }
+
+                if (errorData.errors) {
+                    if (errorData.errors.username) {
+                        document.getElementById('usernameError').innerText = errorData.errors.username;
+                    }
+                    if (errorData.errors.password) {
+                        document.getElementById('passwordError').innerText = errorData.errors.password;
+                    }
+                } else {
+                    alert('Произошла ошибка при регистрации.');
+                }
+            }
+        } catch (err) {
+            console.error(err);
+            alert('Ошибка сети или сервера.');
+        }
+    });
+</script>
+
+</body>
+</html>

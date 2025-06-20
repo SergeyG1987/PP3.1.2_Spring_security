@@ -2,7 +2,9 @@ package ru.kata.spring.boot_security.demo.model;
 
 //import javax.persistence.Entity;
 
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import javax.validation.constraints.Size;
 
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -12,17 +14,18 @@ import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+import java.util.Collection;
 import java.util.Set;
 
 @Entity
-@Table(name = "t_user")
+@Table(name = "user")
 public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Size(min=2, message = "Не меньше 5 знаков")
+    @Size(min=3, message = "Не меньше 3 знаков")
     private String username;
-    @Size(min=2, message = "Не меньше 5 знаков")
+    @Size(min=3, message = "Не меньше 3 знаков")
     private String password;
     @Transient
     private String passwordConfirm;
@@ -97,5 +100,12 @@ public class User implements UserDetails {
 
     public void setRoles(Set<Role> roles) {
         this.roles = roles;
+    }
+
+    @Override
+    public String toString() {
+        return "Пользователь [" +
+                "id=" + id +
+                ", Логин = " + username + "]";
     }
 }

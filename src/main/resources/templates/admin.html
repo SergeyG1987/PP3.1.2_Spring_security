@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <title>Список пользователей</title>
+  <link rel="stylesheet" type="text/css" href="/resources/css/style.css" />
+</head>
+<body>
+
+<div>
+  <h2>Пользователи</h2>
+  <table id="usersTable" border="1">
+    <thead>
+    <tr>
+      <th>ID</th>
+      <th>UserName</th>
+      <th>Password</th>
+      <th>Roles</th>
+      <th>Действия</th>
+    </tr>
+    </thead>
+    <tbody id="usersBody">
+    <!-- Данные будут вставлены сюда -->
+    </tbody>
+  </table>
+  <a href="/">Главная</a>
+</div>
+
+<script>
+  // Функция для получения списка пользователей
+  async function fetchUsers() {
+    try {
+      const response = await fetch('/api/users'); // предполагаемый API для получения всех пользователей
+      if (response.ok) {
+        const users = await response.json();
+        renderUsers(users);
+      } else {
+        alert('Ошибка при получении списка пользователей');
+      }
+    } catch (err) {
+      console.error('Ошибка fetch пользователей:', err);
+    }
+  }
+
+  // Функция для отображения пользователей в таблице
+  function renderUsers(users) {
+    const tbody = document.getElementById('usersBody');
+    tbody.innerHTML = ''; // очистка таблицы
+
+    users.forEach(user => {
+      const tr = document.createElement('tr');
+
+      // ID
+      const tdId = document.createElement('td');
+      tdId.textContent = user.id;
+      tr.appendChild(tdId);
+
+      // Username
+      const tdUsername = document.createElement('td');
+      tdUsername.textContent = user.username;
+      tr.appendChild(tdUsername);
+
+      // Password
+      const tdPassword = document.createElement('td');
+      tdPassword.textContent = user.password;
+      tr.appendChild(tdPassword);
+
+      // Roles
+      const tdRoles = document.createElement('td');
+      tdRoles.textContent = user.roles.map(role => role.name).join('; ');
+      tr.appendChild(tdRoles);
+
+      // Действия (удаление)
+      const tdActions = document.createElement('td');
+
+      const deleteForm = document.createElement('form');
+      deleteForm.method = 'post';
+
+      // скрытые поля
+      const inputUserId = document.createElement('input');
+      inputUserId.type = 'hidden';
+      inputUserId.name = 'userId';
+      inputUserId.value = user.id;
+
+      const inputAction = document.createElement('input');
+      inputAction.type = 'hidden';
+      inputAction.name = 'action';
+      inputAction.value = 'delete';
+
+      deleteForm.appendChild(inputUserId);
+      deleteForm.appendChild(inputAction);
+
+      // кнопка удаления
+      const deleteButton = document.createElement('button');
+      deleteButton.type = 'submit';
+      deleteButton.textContent = 'Delete';
+
+      deleteForm.appendChild(deleteButton);
+
+      // Обработчик отправки формы
+      deleteForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        await deleteUser(user.id);
+        await fetchUsers(); // обновляем список после удаления
+      });
+
+      tdActions.appendChild(deleteForm);
+
+      tr.appendChild(tdActions);
+
+      tbody.appendChild(tr);
+    });
+  }
+
+  // Функция для удаления пользователя по ID
+  async function deleteUser(userId) {
+    try {
+      const response = await fetch('/api/users/delete', { // предполагаемый API для удаления
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId })
+      });
+      if (!response.ok) {
+        alert('Ошибка при удалении пользователя');
+      }
+    } catch (err) {
+      console.error('Ошибка при удалении:', err);
+    }
+  }
+
+  // Загружаем список при загрузке страницы
+  window.onload = fetchUsers;
+</script>
+
+</body>
+</html>
