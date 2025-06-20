@@ -22,28 +22,37 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
-                .authorizeRequests()
-                .antMatchers("/", "/index").permitAll()
-                .anyRequest().authenticated()
+                .authorizeRequests()                            // Начало конфигурации правил авторизации в Spring Security
+                .antMatchers("/", "/index").permitAll()     // Позволяет всем заходить на / и /index без авторизации
+                .antMatchers("/admin/**").hasRole("ADMIN")    // Доступ для роли ADMIN к /admin/**
+                .antMatchers("/user").hasRole("USER")         // Доступ для роли USER к /user
+                .anyRequest().authenticated()                   // все остальные требуют входа в систему
+                .and()                                          // завершение текущего блока настроек и перехода к следующему разделу конфигурации
+                .formLogin().successHandler(successUserHandler) // Использует форму входа, при этом после успешной авторизации вызывается successUserHandler.
+                .permitAll()                                    // разрешить доступ к форме логина всем
                 .and()
-                .formLogin().successHandler(successUserHandler)
-                .permitAll()
-                .and()
-                .logout()
-                .permitAll();
+                .logout().logoutSuccessUrl("/")
+                .permitAll();                                   // разрешить выход из системы всем
     }
 
     // аутентификация inMemory
-    @Bean
-    @Override
+    @Bean       //метод возвращает компонент, который должен быть управляемым контейнером Spring
+    @Override   //переопределение реализации сервиса пользователей в Spring Security
     public UserDetailsService userDetailsService() {
-        UserDetails user =
-                User.withDefaultPasswordEncoder()
-                        .username("user")
-                        .password("user")
-                        .roles("USER")
-                        .build();
+        UserDetails user = User.builder()// создание пользователя с логином/паролем/ролью user
+                //User.withDefaultPasswordEncoder()
+                .username("user")
+                .password("{bcrypt}$2a$12$rIxFRYcu1jlD2tpXv7oODO.5c9WwTetznHimgmQJTOg/5Af.8xlv6") //user
+                .roles("USER")
+                .build();   //создает финальный объект UserDetails, который затем передается в InMemoryUserDetailsManager.
 
-        return new InMemoryUserDetailsManager(user);
+        UserDetails admin = User.builder()// создание административного пользователя admin
+                //User.withDefaultPasswordEncoder()
+                .username("admin")
+                .password("{bcrypt}$2a$12$CE.5kDEza.xAwrlxJRtnReY4kwQK2BWRTuyADXqHqxQ3Oi9gMLvGm") //admin
+                .roles("ADMIN", "USER")
+                .build();   //создает финальный объект UserDetails, который затем передается в InMemoryUserDetailsManager.
+
+        return new InMemoryUserDetailsManager(user, admin);
     }
 }
