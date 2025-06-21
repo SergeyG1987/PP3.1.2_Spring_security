@@ -4,7 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-//import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import ru.kata.spring.boot_security.demo.model.Role;
 import ru.kata.spring.boot_security.demo.model.User;
@@ -19,14 +20,21 @@ import java.util.Optional;
 
 @Service
 public class UserService implements UserDetailsService {
+
     @PersistenceContext
     private EntityManager em;
     @Autowired
     UserRepository userRepository;
     @Autowired
     RoleRepository roleRepository;
-//    @Autowired
-//    BCryptPasswordEncoder bCryptPasswordEncoder;
+
+    private final PasswordEncoder passwordEncoder;
+
+    public UserService(PasswordEncoder passwordEncoder) {
+        this.passwordEncoder = passwordEncoder;
+    }
+
+
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -56,12 +64,7 @@ public class UserService implements UserDetailsService {
         }
 
         user.setRoles(Collections.singleton(new Role(1L, "ROLE_USER")));
-        // Убираем шифрование пароля
-        // user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
-        // Вместо этого оставляем пароль как есть
-        // Предполагается, что пользователь вводит пароль "user" или "admin" в форме
-        user.setPassword(user.getPassword());
-
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.save(user);
         return true;
     }
