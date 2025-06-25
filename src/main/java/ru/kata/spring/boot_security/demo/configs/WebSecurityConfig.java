@@ -1,41 +1,40 @@
 package ru.kata.spring.boot_security.demo.configs;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.thymeleaf.extras.springsecurity4.dialect.SpringSecurityDialect;
+import org.thymeleaf.spring5.SpringTemplateEngine;
+import org.thymeleaf.templateresolver.ITemplateResolver;
+import ru.kata.spring.boot_security.demo.security.DatabaseUserDetailService;
 
 @Configuration
 @EnableWebSecurity
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     private final SuccessUserHandler successUserHandler;
+    private DatabaseUserDetailService databaseUserDetailService;
 
     public WebSecurityConfig(SuccessUserHandler successUserHandler) {
         this.successUserHandler = successUserHandler;
     }
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
+    @Autowired
+    public void setCustomUserDetailService(DatabaseUserDetailService databaseUserDetailService) {
+        this.databaseUserDetailService = databaseUserDetailService;
     }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
                 .authorizeRequests()
-                // Требовать авторизацию для главной страницы
-                .antMatchers("/", "/index").authenticated()
-                // остальные правила
+                .antMatchers("/", "/index").permitAll()
                 .antMatchers("/admin/**").hasRole("ADMIN")
-                .antMatchers("/user/**").hasAnyRole("USER","ADMIN")
+                .antMatchers("/user/**").hasRole("USER")
                 .anyRequest().authenticated()
                 .and()
                 .formLogin().successHandler(successUserHandler)
@@ -45,33 +44,32 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .permitAll();
     }
 
-    // аутентификация inMemory
-    @Bean       //метод возвращает компонент, который должен быть управляемым контейнером Spring
-    @Override   //переопределение реализации сервиса пользователей в Spring Security
-    public UserDetailsService userDetailsService() {
-        PasswordEncoder encoder = passwordEncoder();
-        UserDetails user = User.builder()// создание пользователя с логином/паролем/ролью user
-                //User.withDefaultPasswordEncoder()
-                .username("user")
-                //.password("{bcrypt}$2a$12$rIxFRYcu1jlD2tpXv7oODO.5c9WwTetznHimgmQJTOg/5Af.8xlv6") //user
-                .password(encoder.encode("user"))
-                .roles("USER")
-                .build();   //создает финальный объект UserDetails, который затем передается в InMemoryUserDetailsManager.
-
-        UserDetails admin = User.builder()// создание административного пользователя admin
-                //User.withDefaultPasswordEncoder()
-                .username("admin")
-                //.password("{bcrypt}$2a$12$CE.5kDEza.xAwrlxJRtnReY4kwQK2BWRTuyADXqHqxQ3Oi9gMLvGm") //admin
-                //.password("admin")
-                .password(encoder.encode("admin"))
-                .roles("ADMIN", "USER")
-                .build();   //создает финальный объект UserDetails, который затем передается в InMemoryUserDetailsManager.
-
-        return new InMemoryUserDetailsManager(user, admin);
+    @Bean
+    public BCryptPasswordEncoder bCryptPasswordEncoder() {
+        return new BCryptPasswordEncoder();
     }
-//    @Bean
-//    @Override
-//    public AuthenticationManager authenticationManagerBean() throws Exception {
-//        return super.authenticationManagerBean();
-//    }
+
+    //Реализовали daoAuthenticationProvider, с использованием логики из customUserDetailService
+    //аутентификация через БД
+    @Bean
+    public DaoAuthenticationProvider daoAuthenticationProvider() {
+        DaoAuthenticationProvider authenticationProvider =
+                new DaoAuthenticationProvider();
+        authenticationProvider.setPasswordEncoder(bCryptPasswordEncoder());
+        authenticationProvider.setUserDetailsService(databaseUserDetailService);
+        return authenticationProvider;
+    }
+
+    // @Bean для thymeleaf-extras-springsecurity4, для быстрого получения ролей или пользователей
+    // формирование динамического содержимого веб-страниц.
+    // Связывает шаблоны HTML и интеграцию Spring Security.
+    @Bean
+    public SpringTemplateEngine templateEngine(
+            ITemplateResolver templateResolver) {
+        final SpringTemplateEngine templateEngine = new SpringTemplateEngine();
+        templateEngine.setTemplateResolver(templateResolver);
+        templateEngine.addDialect(
+                new SpringSecurityDialect()); // Enable use of "sec"
+        return templateEngine;
+    }
 }
