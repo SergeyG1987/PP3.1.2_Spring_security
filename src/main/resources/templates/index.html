@@ -1,80 +1,31 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <title>Главная</title>
-    <link rel="stylesheet" type="text/css" href="/resources/css/style.css" />
+    <title>Spring Security Example</title>
 </head>
 <body>
-
-<div id="user-info">
-    <!-- Информация о пользователе и ссылки будут вставлены сюда -->
-</div>
-
-<script>
-    // Функция для получения данных о текущем пользователе
-    async function fetchUserInfo() {
-        try {
-            const response = await fetch('/api/user'); // предполагаемый API для получения информации о текущем пользователе
-
-            if (response.ok) {
-                const userData = await response.json();
-                renderUserLinks(userData);
-            } else if (response.status === 401) {
-                // Не авторизован — редиректим на страницу входа
-                window.location.href = "/login"; // укажите правильный путь к странице входа
-            } else {
-                console.error('Ошибка при получении данных пользователя');
-            }
-        } catch (err) {
-            console.error('Ошибка fetch:', err);
-        }
+<style type="text/css">
+    * {
+        color: black;
+        padding: 10px;
+        text-align: center;
+        font-size: 20px;
+        font-family: Verdana, Arial, Helvetica, sans-serif;
     }
 
-    // Функция для отображения ссылок для неавторизованных пользователей
-    function renderUnauthLinks() {
-        const container = document.getElementById('user-info');
-        container.innerHTML = `
-    <h3>Гость</h3>
-    <h4><a href="/login">Войти</a></h4>
-    <h4><a href="/registration">Зарегистрироваться</a></h4>
-  `;
+    .link {
+        margin: 10px;
+        text-decoration: none;
+        box-shadow: 6px 6px 2px 1px black;
+        cursor: pointer;
     }
+</style>
+<h1>Welcome to Index PAGE! </h1>
+<br>
+<h1>Пожалуйста, авторизируйтесь!</h1>
 
-    // Функция для отображения информации и ссылок для авторизованных пользователей
-    function renderUserLinks(userData) {
-        const container = document.getElementById('user-info');
-
-        // Определение ролей
-        const roles = userData.roles || [];
-
-        // Формируем список ролей как строку
-        const rolesStr = roles.join(', ');
-
-        // В зависимости от ролей показываем ссылки
-        let linksHtml = '';
-
-        // Всегда показываем имя пользователя
-        let userNameHtml = `<h3>${userData.name}</h3>`;
-
-        // Если есть роль "ADMIN"
-        if (roles.includes('ROLE_ADMIN')) {
-            linksHtml += `<h4><a href="/admin">Пользователи (только админ)</a></h4>`;
-            linksHtml += `<h4><a href="/news">Новости (только пользователь)</a></h4>`;
-            linksHtml += `<h4><a href="/logout">Выйти</a></h4>`;
-        }
-        // Если есть роль "USER"
-        else if (roles.includes('ROLE_USER')) {
-            linksHtml += `<h4><a href="/news">Новости (только пользователь)</a></h4>`;
-            linksHtml += `<h4><a href="/logout">Выйти</a></h4>`;
-        }
-
-        container.innerHTML = userNameHtml + linksHtml;
-    }
-
-    // Загружаем информацию при загрузке страницы
-    window.onload = fetchUserInfo;
-</script>
-
+<a class="link" href="/login"> Login</a>
+<a class="link" href="/login"> Profile</a>
+<a class="link" href="/admin/user"> Admin Panel</a>
 </body>
 </html>
