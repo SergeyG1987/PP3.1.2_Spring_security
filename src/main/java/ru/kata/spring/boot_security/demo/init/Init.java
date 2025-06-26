@@ -16,7 +16,7 @@ import ru.kata.spring.boot_security.demo.service.UserService;
 public class Init {
     private final UserService userService;
     private final RoleService roleService;
-
+    @Lazy
     @Autowired
     public Init(UserService userService, RoleService roleService) {
         this.userService = userService;

@@ -1,5 +1,6 @@
 package ru.kata.spring.boot_security.demo.controller;
 
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -20,6 +21,7 @@ public class AdminController {
     private final UserServiceImpl userService;
     private final RoleService roleService;
 
+    @Lazy
     public AdminController(UserServiceImpl userService, RoleService roleService) {
         this.userService = userService;
         this.roleService = roleService;

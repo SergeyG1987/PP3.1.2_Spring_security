@@ -25,6 +25,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Autowired
+    @Lazy
     public void setCustomUserDetailService(DatabaseUserDetailService databaseUserDetailService) {
         this.databaseUserDetailService = databaseUserDetailService;
     }
@@ -46,6 +47,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
+    @Lazy
     public BCryptPasswordEncoder bCryptPasswordEncoder() {
         return new BCryptPasswordEncoder();
     }
@@ -53,6 +55,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     //Реализовали daoAuthenticationProvider, с использованием логики из customUserDetailService
     //аутентификация через БД
     @Bean
+    @Lazy
     public DaoAuthenticationProvider daoAuthenticationProvider() {
         DaoAuthenticationProvider authenticationProvider =
                 new DaoAuthenticationProvider();
@@ -65,6 +68,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     // формирование динамического содержимого веб-страниц.
     // Связывает шаблоны HTML и интеграцию Spring Security.
     @Bean
+    @Lazy
     public SpringTemplateEngine templateEngine(
             ITemplateResolver templateResolver) {
         final SpringTemplateEngine templateEngine = new SpringTemplateEngine();

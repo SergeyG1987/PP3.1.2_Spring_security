@@ -1,15 +1,15 @@
 package ru.kata.spring.boot_security.demo.model;
 
 import lombok.Data;
-import org.springframework.data.annotation.Transient;
+import org.springframework.context.annotation.Lazy;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.ManyToMany;
+
 import javax.persistence.Table;
-import java.util.Set;
+
 
 @Entity
 @Data
@@ -23,6 +23,8 @@ public class Role {
 
     public Role() {
     }
+
+    @Lazy
     public Role(String name) {
         this.name = name;
     }
