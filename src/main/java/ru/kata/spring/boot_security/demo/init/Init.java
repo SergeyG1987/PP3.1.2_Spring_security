@@ -3,7 +3,9 @@ package ru.kata.spring.boot_security.demo.init;
 import java.util.HashSet;
 import java.util.Set;
 import javax.annotation.PostConstruct;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import ru.kata.spring.boot_security.demo.model.Role;
 import ru.kata.spring.boot_security.demo.model.User;

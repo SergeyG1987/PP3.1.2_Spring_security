@@ -26,44 +26,13 @@ public class UserController {
      * Обработка GET-запроса по адресу /user
      * Отображает список всех пользователей
      */
-    @RequestMapping("/user") // Обработка запросов, начинающихся с /users
-    @GetMapping
+    @GetMapping("/user") // Обработка запросов, начинающихся с /users
     public String listUsers(Model model, Principal principal) {
         // Получаем пользователей из базы данных
         User user = userService.getUserByName(principal.getName());
         // Передаем пользователей в модель для отображения в шаблоне
-        model.addAttribute("users", user);
+        model.addAttribute("user", user);
         // Возвращаем имя шаблона (например, users.html)
         return "user";
     }
-
-    /**
-     * Обработка POST-запроса для добавления нового пользователя по адресу /users/add
-     * Получает firstname и lastname из параметров формы
-     */
-//    @PostMapping("/add")
-//    public String saveUser(@ModelAttribute User user) {
-//        userService.saveUser(user);
-//        // Перенаправляем обратно на страницу со списком пользователей
-//        return "redirect:/users";
-//    }
-//
-//    /**
-//     * Обработка POST-запроса для удаления пользователя по ID по адресу /users/delete
-//     */
-//    @PostMapping("/delete")
-//    public String deleteUser(@RequestParam long id) {
-//        userService.removeUserById(id);
-//        return "redirect:/users";
-//    }
-//
-//    /**
-//     * Обработка POST-запроса для редактирования пользователя по адресу /users/edit
-//     * Получает id, firstname и lastname из параметров формы
-//     */
-//    @PostMapping("/edit")
-//    public String editUser(@ModelAttribute User user) {
-//        userService.updateUser(user);
-//        return "redirect:/users";
-//    }
 }

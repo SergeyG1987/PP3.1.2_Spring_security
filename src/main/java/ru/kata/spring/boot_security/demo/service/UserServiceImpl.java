@@ -1,25 +1,17 @@
 package ru.kata.spring.boot_security.demo.service;
 
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.kata.spring.boot_security.demo.model.Role;
 import ru.kata.spring.boot_security.demo.model.User;
-import ru.kata.spring.boot_security.demo.repository.RoleRepository;
 import ru.kata.spring.boot_security.demo.repository.UserRepository;
-
-
-import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
+
 
 @Transactional(readOnly = true)
 @Service
-public class UserServiceImpl implements UserDetailsService {
+public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
@@ -54,8 +46,8 @@ public class UserServiceImpl implements UserDetailsService {
 
     @Transactional
     @Override
-    public void deleteUser(Long userId) {
-        userRepository.deleteById(userId);
+    public void deleteUser(Long id) {
+        userRepository.deleteById(id);
     }
 
     @Transactional
