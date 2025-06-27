@@ -3,7 +3,7 @@ package ru.kata.spring.boot_security.demo.configs;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Lazy;
+//import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -20,12 +20,12 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     private final SuccessUserHandler successUserHandler;
     private DatabaseUserDetailService databaseUserDetailService;
 
+    //конструктор для инициализации бина, который вызывает обработчик успешной авторизации
     public WebSecurityConfig(SuccessUserHandler successUserHandler) {
         this.successUserHandler = successUserHandler;
     }
 
     @Autowired
-    @Lazy
     public void setCustomUserDetailService(DatabaseUserDetailService databaseUserDetailService) {
         this.databaseUserDetailService = databaseUserDetailService;
     }
@@ -33,48 +33,44 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
-                .authorizeRequests()
-                .antMatchers("/", "/index").permitAll()
-                .antMatchers("/admin/**").hasRole("ADMIN")
-                .antMatchers("/user/**").hasRole("USER")
-                .anyRequest().authenticated()
+                .authorizeRequests()                            // Конфигурация политик авторизации запросов
+                .antMatchers("/", "/index").permitAll()     //главная страница доступна всем
+                .antMatchers("/admin/**").hasRole("ADMIN")    //страница админа доступна роли АДМИН
+                .antMatchers("/user/**").hasAnyRole("ADMIN","USER") //страница юзера доступна ролям АДМИН и ЮЗЕР
+                .anyRequest().authenticated()// все остальные запросы требуют авторизации
                 .and()
-                .formLogin().successHandler(successUserHandler)
-                .permitAll()
+                .formLogin().successHandler(successUserHandler) //форма авторизации использует successUserHandler
+                .permitAll()                                    // форма авторизации доступна всем
                 .and()
-                .logout().logoutSuccessUrl("/")
-                .permitAll();
+                .logout().logoutSuccessUrl("/login")//при выходе вернуть на страницу авторизации
+                .permitAll(); //доступно всем
     }
 
+    //настройка шифрования bcrypt пароля для хранения в БД
     @Bean
-    @Lazy
     public BCryptPasswordEncoder bCryptPasswordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
-    //Реализовали daoAuthenticationProvider, с использованием логики из customUserDetailService
-    //аутентификация через БД
+    //конфигурирование провайдера аутентификации
     @Bean
-    @Lazy
     public DaoAuthenticationProvider daoAuthenticationProvider() {
         DaoAuthenticationProvider authenticationProvider =
                 new DaoAuthenticationProvider();
-        authenticationProvider.setPasswordEncoder(bCryptPasswordEncoder());
-        authenticationProvider.setUserDetailsService(databaseUserDetailService);
-        return authenticationProvider;
+        authenticationProvider.setUserDetailsService(databaseUserDetailService); //Проверка наличия УЗ (по имени) в БД и загрузка о нём инфо
+        authenticationProvider.setPasswordEncoder(bCryptPasswordEncoder()); //Сравнивает введённые и хранимые пароли, применяя шифрование
+        return authenticationProvider; //возврат результата аутентификации (прошёл/ не прошёл)
     }
 
-    // @Bean для thymeleaf-extras-springsecurity4, для быстрого получения ролей или пользователей
-    // формирование динамического содержимого веб-страниц.
-    // Связывает шаблоны HTML и интеграцию Spring Security.
+
     @Bean
-    @Lazy
     public SpringTemplateEngine templateEngine(
             ITemplateResolver templateResolver) {
-        final SpringTemplateEngine templateEngine = new SpringTemplateEngine();
-        templateEngine.setTemplateResolver(templateResolver);
+        final SpringTemplateEngine templateEngine = new SpringTemplateEngine(); //компиляция HTML-шаблонов с использованием Thymeleaf и рендеринг страниц на стороне сервера
+        templateEngine.setTemplateResolver(templateResolver); //резолвер помогает определить локализацию html-Шаблонов
         templateEngine.addDialect(
-                new SpringSecurityDialect()); // Enable use of "sec"
+                new SpringSecurityDialect()); // обеспечивает интеграцию Thymeleaf с Spring Security
+        // для контроля доступа и отображения элементов страницы в зависимости от текущего статуса авторизованного пользователя
         return templateEngine;
     }
 }

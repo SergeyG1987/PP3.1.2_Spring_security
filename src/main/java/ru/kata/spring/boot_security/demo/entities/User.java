@@ -1,15 +1,16 @@
-package ru.kata.spring.boot_security.demo.model;
+package ru.kata.spring.boot_security.demo.entities;
 
 
 //import org.springframework.security.core.GrantedAuthority;
 //import org.springframework.security.core.userdetails.UserDetails;
 
-import javax.persistence.Column;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
+
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Size;
+import javax.persistence.Column;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -17,9 +18,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
-import java.util.Collection;
 import java.util.Set;
-
 import lombok.Data;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
@@ -38,23 +37,24 @@ public class User {
     @NotEmpty(message = "Имя не может быть пустым!")
     @Size(min=3, max = 99, message = "Имя пользователя не менее 3 и не более 99 знаков")
     private String username;
-    //@Size(min=8, message = "Пароль не менее 8 знаков")
     private String password;
     private String firstname;
     private String lastname;
     @Email
     private String email;
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    @LazyCollection(LazyCollectionOption.EXTRA)
-    @Fetch(FetchMode.JOIN)
+    @ManyToMany
+//            (fetch = FetchType.LAZY)
+//    @LazyCollection(LazyCollectionOption.EXTRA)
+//    @Fetch(FetchMode.JOIN)
     @JoinTable(name = "users_roles",
-    joinColumns = @JoinColumn(name="user_id"),
-    inverseJoinColumns = @JoinColumn(name = "role_id"))
+            joinColumns = @JoinColumn(name="user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> roles;
-    // getPassword и getUsername в ломбок
+    // getPassword и getUsername созданы ломбок
 
     public User() {
+
     }
 
     public User(String username, String password, String firstname, String lastname, String email) {

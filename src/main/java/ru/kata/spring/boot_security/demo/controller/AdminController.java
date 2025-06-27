@@ -1,6 +1,7 @@
 package ru.kata.spring.boot_security.demo.controller;
 
-import org.springframework.context.annotation.Lazy;
+//import org.springframework.context.annotation.Lazy;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -9,8 +10,10 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+
 import javax.validation.Valid;
-import ru.kata.spring.boot_security.demo.model.User;
+
+import ru.kata.spring.boot_security.demo.entities.User;
 import ru.kata.spring.boot_security.demo.service.RoleService;
 import ru.kata.spring.boot_security.demo.service.UserServiceImpl;
 
@@ -21,7 +24,7 @@ public class AdminController {
     private final UserServiceImpl userService;
     private final RoleService roleService;
 
-    @Lazy
+    //внедрение зависимостей через конструктор
     public AdminController(UserServiceImpl userService, RoleService roleService) {
         this.userService = userService;
         this.roleService = roleService;
@@ -55,10 +58,10 @@ public class AdminController {
         return "redirect:/admin/user";
     }
 
+    //исправление Model roles на Model model
     @GetMapping("/user/{id}/edit")
-    public String showEditUser(
-            Model model, @PathVariable("id") Long id, Model roles) {
-        roles.addAttribute("listRoles", roleService.getListRoles());
+    public String showEditUser(Model model, @PathVariable("id") Long id) {
+        model.addAttribute("listRoles", roleService.getListRoles());
         model.addAttribute("user", userService.getUserById(id));
         return "edit";
     }
