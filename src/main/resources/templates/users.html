@@ -1,5 +1,7 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<!--<html xmlns:th="http://www.thymeleaf.org" lang="en">-->
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security4"
+      lang="en">
 
 <head>
     <meta charset="UTF-8">
@@ -17,6 +19,7 @@
         <th scope="col">First Name</th>
         <th scope="col">Last Name</th>
         <th scope="col">Email</th>
+        <th scope="col">Roles</th>
         <th scope="col">Actions</th>
     </tr>
     </thead>
@@ -28,6 +31,9 @@
         <td th:text="${user.getLastName()}"></td>
         <td th:text="${user.getEmail}"></td>
         <td>
+            <span th:object="${user}" th:each="role,iterStat: ${user.getRoles()} " th:text="${role.name} + ${iterStat.last ? '' : ', '}" > VALUE</span>
+        </td>
+        <td>
             <a class="btn btn-primary" th:href="@{/admin/user/{id}(id=${user.id})}">Edit User</a>
             <a class="btn btn-danger" th:href="@{/admin/delete/{id}(id=${user.id})}">Delete</a>
         </td>
@@ -38,6 +44,8 @@
     </tbody>
 </table>
 
+<a class="btn btn-info" th:href="@{/}">Вернуться на Главную</a>
+<a sec:authorize="hasRole('ROLE_ADMIN')"  class="btn btn-secondary" th:href="@{/user}">User Tab</a>
 <a class="btn btn-success" href="/admin/new">Create new user</a>
 <a class="btn btn-danger" th:href="@{/logout}">Logout</a>
 
