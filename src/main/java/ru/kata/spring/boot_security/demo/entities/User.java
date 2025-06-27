@@ -38,8 +38,8 @@ public class User {
     @Size(min=3, max = 99, message = "Имя пользователя не менее 3 и не более 99 знаков")
     private String username;
     private String password;
-    private String firstname;
-    private String lastname;
+    private String firstName;
+    private String lastName;
     @Email
     private String email;
 
@@ -57,11 +57,11 @@ public class User {
 
     }
 
-    public User(String username, String password, String firstname, String lastname, String email) {
+    public User(String username, String password, String firstName, String lastName, String email) {
         this.username = username;
         this.password = password;
-        this.firstname = firstname;
-        this.lastname = lastname;
+        this.firstName = firstName;
+        this.lastName = lastName;
         this.email = email;
     }
 
