@@ -24,12 +24,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User getUserByName(String username) {
-        User user = userRepository.findByUsername(username);
-        if (user == null) {
-            throw new UsernameNotFoundException(
-                    String.format("User %s not found", username));
-        }
-        return user;
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException(
+                        String.format("User '%s' not found", username)));
     }
 
     @Override
@@ -72,11 +69,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User getUserById(Long id) {
-        User existingUser = userRepository.findById(id).orElse(null);
-        if (existingUser == null) {
-            throw new UsernameNotFoundException(
-                    String.format("User with id: %s not found", id));
-        }
-        return existingUser;
+        return userRepository.findById(id)
+                .orElseThrow(() -> new UsernameNotFoundException(
+                        String.format("User with id: %s not found", id)));
     }
 }
