@@ -1,7 +1,5 @@
 package ru.kata.spring.boot_security.demo.controller;
 
-//import org.springframework.context.annotation.Lazy;
-
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -15,17 +13,18 @@ import javax.validation.Valid;
 
 import ru.kata.spring.boot_security.demo.entities.User;
 import ru.kata.spring.boot_security.demo.service.RoleService;
-import ru.kata.spring.boot_security.demo.service.UserServiceImpl;
+import ru.kata.spring.boot_security.demo.service.UserService;
+
 
 
 @Controller
 @RequestMapping("/admin")
 public class AdminController {
-    private final UserServiceImpl userService;
+    private final UserService userService;
     private final RoleService roleService;
 
     //внедрение зависимостей через конструктор
-    public AdminController(UserServiceImpl userService, RoleService roleService) {
+    public AdminController(UserService userService, RoleService roleService) {
         this.userService = userService;
         this.roleService = roleService;
     }
