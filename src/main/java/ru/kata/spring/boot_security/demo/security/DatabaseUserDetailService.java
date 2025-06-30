@@ -13,6 +13,7 @@ import ru.kata.spring.boot_security.demo.entities.User;
 import ru.kata.spring.boot_security.demo.repository.UserRepository;
 
 import java.util.Collection;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -23,19 +24,42 @@ public class DatabaseUserDetailService implements UserDetailsService {
     public void setUserRepository(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
+
+    //    @Transactional(readOnly = true)
+//    @Override
+//    public UserDetails loadUserByUsername(String username)
+//            throws UsernameNotFoundException {
+//        User user = userRepository.findByUsername(username);
+//        if (user == null) {
+//            throw new UsernameNotFoundException(
+//                    String.format("User '%s' not found", username));
+//        }
+//        return new org.springframework.security.core.userdetails.User(
+//                user.getUsername(), user.getPassword(),
+//                mapRolesToAuthorities(user.getRoles()));
+//    }
     @Transactional(readOnly = true)
     @Override
-    public UserDetails loadUserByUsername(String username)
-            throws UsernameNotFoundException {
-        User user = userRepository.findByUsername(username);
-        if (user == null) {
-            throw new UsernameNotFoundException(
-                    String.format("User '%s' not found", username));
-        }
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException(
+                        String.format("User '%s' not found", username)
+                ));
         return new org.springframework.security.core.userdetails.User(
-                user.getUsername(), user.getPassword(),
-                mapRolesToAuthorities(user.getRoles()));
+                user.getUsername(),
+                user.getPassword(),
+                mapRolesToAuthorities(user.getRoles())
+        );
     }
+//    @Transactional(readOnly = true)
+//    @Override
+//    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+//        User user = userRepository.findByUsername(username)
+//                .orElseThrow(() -> new UsernameNotFoundException(
+//                        String.format("User '%s' not found", username)
+//                ));
+//        return new CustomUserDetails(user);
+//    }
 
     private Collection<? extends GrantedAuthority> mapRolesToAuthorities(
             Collection<Role> roles) {
