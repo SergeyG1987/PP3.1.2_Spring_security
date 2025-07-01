@@ -3,6 +3,7 @@ package ru.kata.spring.boot_security.demo.security;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import ru.kata.spring.boot_security.demo.entities.Role;
 import ru.kata.spring.boot_security.demo.entities.User;
 
 import java.util.Collection;
@@ -20,11 +21,25 @@ public class CustomUserDetails implements UserDetails {
     }
 
     /** * Возвращает коллекцию ролевых разрешений пользователя (GrantedAuthority), * которые определяют доступные ресурсы и операции для данного пользователя. * * @return Коллекция GrantedAuthority. */
+//рабочая версия:
+    //    @Override
+//    public Collection<? extends GrantedAuthority> getAuthorities() {
+//        return user.getRoles().stream()
+//                .map(role -> new SimpleGrantedAuthority(role.getName()))
+//                .collect(Collectors.toSet());
+//    }
+    //новое:
+    private Collection<? extends GrantedAuthority> mapRolesToAuthorities(Collection<Role> roles) {
+        return roles.stream()
+                .map(role -> new CustomGrantedAuthority(role))
+                .collect(Collectors.toList());
+    }
+    //новое:
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return user.getRoles().stream()
-                .map(role -> new SimpleGrantedAuthority(role.getName()))
-                .collect(Collectors.toSet());
+                .map(CustomGrantedAuthority::new)
+                .collect(Collectors.toList());
     }
 
     /** * Возвращает пароль пользователя, который был введен при регистрации. * * @return Пароль пользователя. */
