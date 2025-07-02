@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 public class DatabaseUserDetailService implements UserDetailsService {
 
     @Autowired
-    private UserRepository userRepository; // или ваш репозиторий
+    private UserRepository userRepository; // ваш репозиторий
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -30,17 +30,17 @@ public class DatabaseUserDetailService implements UserDetailsService {
         // Проверка наличия пользователя
         User user = optionalUser.orElseThrow(() -> new UsernameNotFoundException("Пользователь не найден"));
 
-        // Преобразование ролей в GrantedAuthority
+        // Преобразование ролей в GrantedAuthority с использованием CustomGrantedAuthority
         Collection<? extends GrantedAuthority> authorities = mapRolesToAuthorities(user.getRoles());
 
         // Создаем CustomUserDetails с пользователем и его авторитетами
         return new CustomUserDetails(user, authorities);
     }
 
-    // Универсальный метод преобразования ролей в GrantedAuthority
+    // Метод преобразования ролей в GrantedAuthority с использованием вашего класса
     private Collection<? extends GrantedAuthority> mapRolesToAuthorities(Collection<Role> roles) {
         return roles.stream()
-                .map(role -> new SimpleGrantedAuthority(role.getName()))
+                .map(role -> new CustomGrantedAuthority(role))
                 .collect(Collectors.toList());
     }
 }
