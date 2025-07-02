@@ -5,9 +5,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import ru.kata.spring.boot_security.demo.service.UserService;
 import ru.kata.spring.boot_security.demo.entities.User;
-
 import java.security.Principal;
-//import java.util.List;
+
 
 @Controller
 public class UserController {

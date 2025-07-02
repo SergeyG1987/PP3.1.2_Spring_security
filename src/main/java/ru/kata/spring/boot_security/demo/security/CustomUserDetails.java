@@ -1,21 +1,23 @@
 package ru.kata.spring.boot_security.demo.security;
 
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import ru.kata.spring.boot_security.demo.entities.Role;
 import ru.kata.spring.boot_security.demo.entities.User;
 
 import java.util.Collection;
-import java.util.stream.Collectors;
 
 /** * Класс CustomUserDetails реализует интерфейс UserDetails, представляющий информацию о пользователе, * используемую Spring Security для аутентификации и авторизации. */
 public class CustomUserDetails implements UserDetails {
 
-
     private final User user;
+    // Коллекция авторитетов (ролей/прав), реализующая GrantedAuthority
     private final Collection<? extends GrantedAuthority> authorities;
 
+    /**
+     * Конструктор класса, инициализирующий пользователя и его авторитеты
+     * @param user - объект пользователя из базы данных
+     * @param authorities - коллекция ролей/прав, реализующих GrantedAuthority
+     */
     public CustomUserDetails(User user, Collection<? extends GrantedAuthority> authorities) {
         this.user = user;
         this.authorities = authorities;
@@ -23,7 +25,7 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return authorities;
+        return authorities; //Возвращает коллекцию авторитетов (ролей/прав), связанных с этим пользователем
     }
 
 

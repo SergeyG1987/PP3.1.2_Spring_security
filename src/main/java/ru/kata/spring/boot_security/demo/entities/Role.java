@@ -1,8 +1,6 @@
 package ru.kata.spring.boot_security.demo.entities;
 
 import lombok.Data;
-//import org.springframework.context.annotation.Lazy;
-
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
