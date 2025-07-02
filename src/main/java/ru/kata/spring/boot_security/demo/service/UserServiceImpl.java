@@ -48,24 +48,6 @@ public class UserServiceImpl implements UserService {
         userRepository.deleteById(id);
     }
 
-//    @Transactional
-//    @Override
-//    public void editUser(Long id, User user) {
-//        User existingUser = userRepository.findById(id)
-//                .orElseThrow(() -> new UsernameNotFoundException(
-//                        String.format("User with id: %s not found", id)
-//                ));
-//        existingUser.setUsername(user.getUsername());
-//        existingUser.setFirstName(user.getFirstName());
-//        existingUser.setLastName(user.getLastName());
-//        existingUser.setEmail(user.getEmail());
-//        existingUser.setRoles(user.getRoles());
-//        if (!existingUser.getPassword().equals(user.getPassword())) {
-//            existingUser.setPassword(
-//                    bCryptPasswordEncoder.encode(user.getPassword()));
-//        }
-//        userRepository.save(existingUser);
-//    }
 @Transactional
 @Override
 public void editUser(Long id, User user) {
