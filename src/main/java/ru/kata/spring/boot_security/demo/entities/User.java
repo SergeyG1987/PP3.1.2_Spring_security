@@ -43,7 +43,7 @@ public class User {
     @Email
     private String email;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
 //            (fetch = FetchType.LAZY)
 //    @LazyCollection(LazyCollectionOption.EXTRA)
 //    @Fetch(FetchMode.JOIN)

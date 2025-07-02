@@ -18,56 +18,29 @@ import java.util.stream.Collectors;
 
 @Service
 public class DatabaseUserDetailService implements UserDetailsService {
-    private UserRepository userRepository;
 
     @Autowired
-    public void setUserRepository(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
+    private UserRepository userRepository; // или ваш репозиторий
 
-    //    @Transactional(readOnly = true)
-//    @Override
-//    public UserDetails loadUserByUsername(String username)
-//            throws UsernameNotFoundException {
-//        User user = userRepository.findByUsername(username);
-//        if (user == null) {
-//            throw new UsernameNotFoundException(
-//                    String.format("User '%s' not found", username));
-//        }
-//        return new org.springframework.security.core.userdetails.User(
-//                user.getUsername(), user.getPassword(),
-//                mapRolesToAuthorities(user.getRoles()));
-//    }
-
-//РАБОЧАЯ ВЕРСИЯ:
-//    @Transactional(readOnly = true)
-//    @Override
-//    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-//        User user = userRepository.findByUsername(username)
-//                .orElseThrow(() -> new UsernameNotFoundException(
-//                        String.format("User '%s' not found", username)
-//                ));
-//        return new org.springframework.security.core.userdetails.User(
-//                user.getUsername(),
-//                user.getPassword(),
-//                mapRolesToAuthorities(user.getRoles())
-//        );
-//    }
-    //новое:
-    @Transactional(readOnly = true)
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException(
-                        String.format("User '%s' not found", username)
-                ));
-        return new CustomUserDetails(user);
+        // Получение Optional<User>
+        Optional<User> optionalUser = userRepository.findByUsername(username);
+
+        // Проверка наличия пользователя
+        User user = optionalUser.orElseThrow(() -> new UsernameNotFoundException("Пользователь не найден"));
+
+        // Преобразование ролей в GrantedAuthority
+        Collection<? extends GrantedAuthority> authorities = mapRolesToAuthorities(user.getRoles());
+
+        // Создаем CustomUserDetails с пользователем и его авторитетами
+        return new CustomUserDetails(user, authorities);
     }
 
-    private Collection<? extends GrantedAuthority> mapRolesToAuthorities(
-            Collection<Role> roles) {
+    // Универсальный метод преобразования ролей в GrantedAuthority
+    private Collection<? extends GrantedAuthority> mapRolesToAuthorities(Collection<Role> roles) {
         return roles.stream()
-                .map(r -> new SimpleGrantedAuthority(r.getName()))
+                .map(role -> new SimpleGrantedAuthority(role.getName()))
                 .collect(Collectors.toList());
     }
 }

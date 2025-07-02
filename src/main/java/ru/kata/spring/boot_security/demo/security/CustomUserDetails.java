@@ -12,35 +12,21 @@ import java.util.stream.Collectors;
 /** * Класс CustomUserDetails реализует интерфейс UserDetails, представляющий информацию о пользователе, * используемую Spring Security для аутентификации и авторизации. */
 public class CustomUserDetails implements UserDetails {
 
-    /** * Хранит ссылку на сущность пользователя, содержащую основную информацию о пользователе. */
+
     private final User user;
+    private final Collection<? extends GrantedAuthority> authorities;
 
-    /** * Конструктор принимает объект User и сохраняет его в приватное поле. * * @param user объект сущности User, полученный из базы данных. */
-    public CustomUserDetails(User user) {
+    public CustomUserDetails(User user, Collection<? extends GrantedAuthority> authorities) {
         this.user = user;
+        this.authorities = authorities;
     }
 
-    /** * Возвращает коллекцию ролевых разрешений пользователя (GrantedAuthority), * которые определяют доступные ресурсы и операции для данного пользователя. * * @return Коллекция GrantedAuthority. */
-//рабочая версия:
-    //    @Override
-//    public Collection<? extends GrantedAuthority> getAuthorities() {
-//        return user.getRoles().stream()
-//                .map(role -> new SimpleGrantedAuthority(role.getName()))
-//                .collect(Collectors.toSet());
-//    }
-    //новое:
-    private Collection<? extends GrantedAuthority> mapRolesToAuthorities(Collection<Role> roles) {
-        return roles.stream()
-                .map(role -> new CustomGrantedAuthority(role))
-                .collect(Collectors.toList());
-    }
-    //новое:
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return user.getRoles().stream()
-                .map(CustomGrantedAuthority::new)
-                .collect(Collectors.toList());
+        return authorities;
     }
+
+
 
     /** * Возвращает пароль пользователя, который был введен при регистрации. * * @return Пароль пользователя. */
     @Override
