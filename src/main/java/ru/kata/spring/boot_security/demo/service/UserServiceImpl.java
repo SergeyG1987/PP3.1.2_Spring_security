@@ -62,7 +62,6 @@ public void editUser(Long id, User user) {
     if (!existingUser.getPassword().equals(user.getPassword())) {
         existingUser.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
     }
-
     userRepository.save(existingUser);
 }
 
