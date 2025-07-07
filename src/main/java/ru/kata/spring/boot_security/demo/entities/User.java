@@ -1,10 +1,5 @@
 package ru.kata.spring.boot_security.demo.entities;
 
-
-//import org.springframework.security.core.GrantedAuthority;
-//import org.springframework.security.core.userdetails.UserDetails;
-
-
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Size;
@@ -19,11 +14,15 @@ import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 import java.util.Set;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
-@Data
-//геттеры, сеттеры, хэшкод и equals созданы ломбок
+
+//геттеры, сеттеры созданы ломбок
+@Getter
+@Setter
+
 @Table(name = "users")
 public class User {
     @Id
@@ -39,10 +38,7 @@ public class User {
     @Email
     private String email;
 
-    @ManyToMany(fetch = FetchType.EAGER)
-//            (fetch = FetchType.LAZY)
-//    @LazyCollection(LazyCollectionOption.EXTRA)
-//    @Fetch(FetchMode.JOIN)
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "users_roles",
             joinColumns = @JoinColumn(name="user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id"))
@@ -59,6 +55,17 @@ public class User {
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
+    }
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof User user)) return false;
+        return id != null && id.equals(user.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return id != null ? id.hashCode() : 0;
     }
 
 }
