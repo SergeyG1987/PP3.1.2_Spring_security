@@ -10,4 +10,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
     //@Override
     @Transactional
     Optional<User> findByUsername(String username);
+    @Transactional
+    Optional<User> findByEmail(String email);
+
+    String email(String email);
 }

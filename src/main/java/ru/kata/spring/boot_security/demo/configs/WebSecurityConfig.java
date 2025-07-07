@@ -38,7 +38,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/user/**").hasAnyRole("ADMIN","USER") //страница юзера доступна ролям АДМИН и ЮЗЕР
                 .anyRequest().authenticated()// все остальные запросы требуют авторизации
                 .and()
-                .formLogin().successHandler(successUserHandler) //форма авторизации использует successUserHandler
+                .formLogin()
+//                .loginPage("/login")
+                .usernameParameter("email")
+                .successHandler(successUserHandler) //форма авторизации использует successUserHandler
                 .permitAll()                                    // форма авторизации доступна всем
                 .and()
                 .logout().logoutSuccessUrl("/login")//при выходе вернуть на страницу авторизации

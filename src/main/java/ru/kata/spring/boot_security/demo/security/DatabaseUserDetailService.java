@@ -23,11 +23,12 @@ public class DatabaseUserDetailService implements UserDetailsService {
     }
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         // Получение Optional<User>
-        Optional<User> optionalUser = userRepository.findByUsername(username);
+        //Optional<User> optionalUser = userRepository.findByUsername(username);
+        Optional<User> optionalUser = userRepository.findByEmail(email);
         // Проверка наличия пользователя
-        User user = optionalUser.orElseThrow(() -> new UsernameNotFoundException("Пользователь не найден"));
+        User user = optionalUser.orElseThrow(() -> new UsernameNotFoundException("Пользователь c email:" + email +" не найден!"));
         // Преобразование ролей в GrantedAuthority с использованием CustomGrantedAuthority
         Collection<? extends GrantedAuthority> authorities = mapRolesToAuthorities(user.getRoles());
         // Создаем CustomUserDetails с пользователем и его авторитетами
