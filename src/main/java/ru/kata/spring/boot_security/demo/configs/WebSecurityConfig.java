@@ -39,12 +39,14 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .anyRequest().authenticated()// все остальные запросы требуют авторизации
                 .and()
                 .formLogin()
-//                .loginPage("/login")
+                .loginPage("/login")
                 .usernameParameter("email")
                 .successHandler(successUserHandler) //форма авторизации использует successUserHandler
                 .permitAll()                                    // форма авторизации доступна всем
                 .and()
-                .logout().logoutSuccessUrl("/login")//при выходе вернуть на страницу авторизации
+                .logout()
+                .logoutUrl("/logout")
+                .logoutSuccessUrl("/")//при выходе вернуть на страницу авторизации
                 .permitAll(); //доступно всем
     }
 
