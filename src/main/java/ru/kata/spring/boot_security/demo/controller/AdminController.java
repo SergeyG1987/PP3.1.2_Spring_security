@@ -1,5 +1,7 @@
 package ru.kata.spring.boot_security.demo.controller;
 
+import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -8,74 +10,65 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import javax.validation.Valid;
-import ru.kata.spring.boot_security.demo.entities.User;
+import ru.kata.spring.boot_security.demo.model.User;
 import ru.kata.spring.boot_security.demo.service.RoleService;
 import ru.kata.spring.boot_security.demo.service.UserService;
-
-
 
 @Controller
 @RequestMapping("/admin")
 public class AdminController {
-    private final UserService userService;
-    private final RoleService roleService;
 
-    //внедрение зависимостей через конструктор
-    public AdminController(UserService userService, RoleService roleService) {
-        this.userService = userService;
-        this.roleService = roleService;
+    @Autowired
+    private UserService userService;
+
+    @Autowired
+    private RoleService roleService;
+
+    @GetMapping("/users")
+    public String listUsers(Model model) {
+        model.addAttribute("users", userService.findAll());
+        return "admin/users";
     }
 
-    @GetMapping("/user")
-    public String getUsers(Model model) {
-        model.addAttribute("users", userService.getUsers());
-        return "users";
+    @GetMapping("/users/new")
+    public String showUserForm(Model model) {
+        model.addAttribute("user", new User());
+        model.addAttribute("listRoles", roleService.findAll());
+        return "admin/new-user";
     }
 
-    @GetMapping("/user/{id}")
-    public String getUserById(@PathVariable("id") Long id, Model model) {
-        model.addAttribute("user", userService.getUserById(id));
-        return "user";
-    }
-
-    @GetMapping("/new")
-    public String showAddUser(@ModelAttribute("user") User user, Model model) {
-        model.addAttribute("listRoles", roleService.getListRoles());
-        return "new";
-    }
-
-    @PostMapping("/user")
-    public String createUser(
-            @ModelAttribute("user") @Valid User user, BindingResult result) {
+    @PostMapping("/users")
+    public String saveUser(@Valid @ModelAttribute User user, BindingResult result, Model model) {
         if (result.hasErrors()) {
-            return "new";
+            model.addAttribute("listRoles", roleService.findAll());
+            return "admin/new-user";
         }
-        userService.addUser(user);
-        return "redirect:/admin/user";
+        userService.save(user);
+        return "redirect:/admin/users";
     }
 
-    //исправление Model roles на Model model
-    @GetMapping("/user/{id}/edit")
-    public String showEditUser(Model model, @PathVariable("id") Long id) {
-        model.addAttribute("listRoles", roleService.getListRoles());
-        model.addAttribute("user", userService.getUserById(id));
-        return "edit";
+    @GetMapping("/users/edit/{id}")
+    public String editUser(@PathVariable Long id, Model model) {
+        User user = userService.findById(id);
+        model.addAttribute("user", user);
+        model.addAttribute("listRoles", roleService.findAll());
+        return "admin/edit-user";
     }
 
-    @PostMapping("/user/{id}")
-    public String editUser(@ModelAttribute("user") @Valid User user,
-                           @PathVariable("id") Long id, BindingResult result) {
+    @PostMapping("/users/{id}")
+    public String updateUser(@PathVariable Long id, @Valid @ModelAttribute User user,
+                             BindingResult result, Model model) {
         if (result.hasErrors()) {
-            return "edit";
+            model.addAttribute("listRoles", roleService.findAll());
+            return "admin/edit-user";
         }
-        userService.editUser(id, user);
-        return "redirect:/admin/user";
+        userService.update(id, user);
+        return "redirect:/admin/users";
     }
 
-    @GetMapping("/delete/{id}")
-    public String deleteUser(@PathVariable("id") Long id) {
-        this.userService.deleteUser(id);
-        return "redirect:/admin/user";
+    @GetMapping("/users/delete/{id}")
+    public String deleteUser(@PathVariable Long id) {
+        userService.delete(id);
+        return "redirect:/admin/users";
     }
 }

@@ -5,8 +5,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 
 @Controller
 public class LoginController {
-    @GetMapping("/login")
-    public String loginPage() {
-        return "login"; // имя шаблона login.html
-    }
+    @GetMapping("/login") public String loginPage() { return "login"; }
+    @GetMapping("/") public String homePage() { return "index"; }
 }
