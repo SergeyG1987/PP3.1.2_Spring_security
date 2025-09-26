@@ -17,7 +17,6 @@ public class WebSecurityConfig {
     private final ru.kata.spring.boot_security.demo.service.UserService userService;
     private final SuccessUserHandler successHandler;
 
-
     @Autowired
     public WebSecurityConfig(@Lazy ru.kata.spring.boot_security.demo.service.UserService userService,
                              SuccessUserHandler successHandler) {
@@ -51,7 +50,7 @@ public class WebSecurityConfig {
     @Bean
     public DaoAuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-        authProvider.setUserDetailsService(userService);
+        authProvider.setUserDetailsService(userService);  // UserService уже extends UserDetailsService
         authProvider.setPasswordEncoder(passwordEncoder());
         return authProvider;
     }

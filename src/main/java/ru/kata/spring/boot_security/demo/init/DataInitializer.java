@@ -12,24 +12,35 @@ import java.util.Set;
 
 @Component
 public class DataInitializer implements CommandLineRunner {
-    @Autowired private UserRepository userRepository;
-    @Autowired private RoleService roleService;
-    @Autowired private BCryptPasswordEncoder passwordEncoder;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private RoleService roleService;  // Теперь интерфейс!
+
+    @Autowired
+    private BCryptPasswordEncoder passwordEncoder;
 
     @Override
     public void run(String... args) throws Exception {
         Role adminRole = new Role("ROLE_ADMIN");
         Role userRole = new Role("ROLE_USER");
 
-        if (roleService.findByName("ROLE_ADMIN") == null) roleService.save(adminRole);
-        if (roleService.findByName("ROLE_USER") == null) roleService.save(userRole);
+        if (roleService.findByName("ROLE_ADMIN") == null) {
+            roleService.save(adminRole);
+        }
+        if (roleService.findByName("ROLE_USER") == null) {
+            roleService.save(userRole);
+        }
 
         adminRole = roleService.findByName("ROLE_ADMIN");
         userRole = roleService.findByName("ROLE_USER");
 
         if (userRepository.findByEmail("admin@example.com").isEmpty()) {
             User admin = new User();
-            admin.setName("Admin"); admin.setEmail("admin@example.com");
+            admin.setName("Admin");
+            admin.setEmail("admin@example.com");
             admin.setPassword(passwordEncoder.encode("admin"));
             admin.setRoles(Set.of(adminRole, userRole));
             userRepository.save(admin);
@@ -37,7 +48,8 @@ public class DataInitializer implements CommandLineRunner {
 
         if (userRepository.findByEmail("user@example.com").isEmpty()) {
             User user = new User();
-            user.setName("User"); user.setEmail("user@example.com");
+            user.setName("User");
+            user.setEmail("user@example.com");
             user.setPassword(passwordEncoder.encode("user"));
             user.setRoles(Set.of(userRole));
             userRepository.save(user);
