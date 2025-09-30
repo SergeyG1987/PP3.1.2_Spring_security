@@ -50,16 +50,19 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void update(Long id, User user) {
-        User existingUser = findById(id);
-        if (existingUser != null) {
-            existingUser.setName(user.getName());
-            existingUser.setEmail(user.getEmail());
-            if (user.getPassword() != null && !user.getPassword().isEmpty()) {
-                existingUser.setPassword(passwordEncoder.encode(user.getPassword()));
+        // Если пароль не указан (оставлен пустым), берем старый пароль из БД
+        if (user.getPassword() == null || user.getPassword().trim().isEmpty()) {
+            User existingUser = userRepository.findById(id).orElse(null);
+            if (existingUser != null) {
+                user.setPassword(existingUser.getPassword());
             }
-            existingUser.setRoles(user.getRoles());
-            userRepository.save(existingUser);
+        } else {
+            // Шифруем новый пароль
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
         }
+        // Устанавливаем ID для обновления существующей записи
+        user.setId(id);
+        userRepository.save(user);
     }
 
     @Override

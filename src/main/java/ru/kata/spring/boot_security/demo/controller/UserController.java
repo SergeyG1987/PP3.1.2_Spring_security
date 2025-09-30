@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 public class UserController {
 
     @Autowired
-    private UserService userService;  // Интерфейс!
+    private UserService userService;
 
     @GetMapping("/user/profile")
     public String userProfile(Authentication authentication, Model model) {
